@@ -27,13 +27,14 @@ public class CheckVehiclesChangesService {
 	public void checkUpdates() throws ReadDataException {
 		// Obtenemos los valores de la API
 		ReadResourcesDataDTO[] resources = readResourcesData.read();
-		log.info("XAVI - resources: " + resources.length);
-		// Obtenemos los valores de la anterior petición para poder comparar si se he
-		// eliminado alguno
+		// Obtenemos la información de los recursos activos para obtener los valores
+		// nuevos y modificar los que ya no estén activos
 		List<Resource> currentActiveResources = resourcesService.findActiveResources();
-		log.info("XAVI - currentActiveResources: " + currentActiveResources.size());
 		// Buscamos y guardamos los nuevos recursos
-		findNewVehicles(resources, currentActiveResources);
+		Integer savedResources = findNewVehicles(resources, currentActiveResources);
+		// Buscamos y actualizamos los que ya no tengan que estar activos
+		Integer updatedResources = findNonActiveVehicles(resources, currentActiveResources);
+		log.info("XAVI - checkUpdates, saved: {}, updated: {}", savedResources, updatedResources);
 	}
 
 	/**
@@ -43,8 +44,9 @@ public class CheckVehiclesChangesService {
 	 * 
 	 * @param readedResources        Recursos leído del Endpoint
 	 * @param currentActiveResources List de recursos activos leídos de la BBDD
+	 * @return Número de registros que se han guardado
 	 */
-	private void findNewVehicles(ReadResourcesDataDTO[] readedResources, List<Resource> currentActiveResources) {
+	private Integer findNewVehicles(ReadResourcesDataDTO[] readedResources, List<Resource> currentActiveResources) {
 		List<String> readedResourcesIds = Arrays.asList(readedResources).stream().map(ReadResourcesDataDTO::getId)
 				.collect(Collectors.toList());
 		List<String> currentActiveResourcesIds = currentActiveResources.stream().map(Resource::getVehicleId)
@@ -52,16 +54,21 @@ public class CheckVehiclesChangesService {
 		// Eliminamos todos los Ids de los recursos activos de la lista de leídos, así
 		// sabremos que IDs de Vehículos son los que tenemos que guardar
 		readedResourcesIds.removeAll(currentActiveResourcesIds);
-		// Validamos los registros que vamos a guardar, tenemos que verificar la
-		// integridad de los datos
-		List<Resource> validatedResources = validateNewResources(Arrays.asList(readedResources).stream()
-				.filter(readResource -> readedResourcesIds.contains(readResource.getId()))
-				.collect(Collectors.toList()));
-		// Guardamos los registros validados
-		if (!validatedResources.isEmpty()) {
-			log.info("XAVI - findNewVehicles, saved: " + validatedResources.size());
-			resourcesService.saveAll(validatedResources);
+		if (!readedResourcesIds.isEmpty()) {
+			// Validamos los registros que vamos a guardar, tenemos que verificar la
+			// integridad de los datos
+			List<Resource> validatedResources = validateNewResources(Arrays.asList(readedResources).stream()
+					.filter(readResource -> readedResourcesIds.contains(readResource.getId()))
+					.collect(Collectors.toList()));
+			// Guardamos los registros validados
+			if (!validatedResources.isEmpty()) {
+				resourcesService.saveAll(validatedResources);
+				// Devolvemos el número de registros que hemos guardado para poder llevar el
+				// control
+				return validatedResources.size();
+			}
 		}
+		return 0;
 	}
 
 	/**
@@ -74,7 +81,6 @@ public class CheckVehiclesChangesService {
 	 * @return Lista de nuevos recursos validados
 	 */
 	private List<Resource> validateNewResources(List<ReadResourcesDataDTO> newReadedResources) {
-		log.info("XAVI - validateNewResources, newReadedResources: " + newReadedResources.size());
 		List<Resource> validatedResources = new ArrayList<>();
 		for (ReadResourcesDataDTO newReadedResource : newReadedResources) {
 			// Validamos el recurso leído respecto al último registro que tengamos con el
@@ -97,7 +103,6 @@ public class CheckVehiclesChangesService {
 	private Boolean validateWithLastResourceById(ReadResourcesDataDTO newReadedResource) {
 		Resource lastResourceById = resourcesService.findLastByVehicleId(newReadedResource.getId());
 		if (lastResourceById != null) {
-			log.info("XAVI - validateNewResources, lastResourceById: " + lastResourceById.getVehicleId());
 			return validateIsSameVehicles(newReadedResource, lastResourceById);
 		}
 		return true;
@@ -113,11 +118,35 @@ public class CheckVehiclesChangesService {
 		Resource lastResourceByLicencePlate = resourcesService
 				.findLastByLicencePlate(newReadedResource.getLicencePlate());
 		if (lastResourceByLicencePlate != null) {
-			log.info("XAVI - validateNewResources, lastResourceByLicencePlate: "
-					+ lastResourceByLicencePlate.getLicencePlate());
 			return validateIsSameVehicles(newReadedResource, lastResourceByLicencePlate);
 		}
 		return true;
+	}
+
+	/**
+	 * Comprobamos los recursos que ya no están activos
+	 * 
+	 * @param readedResources        Recursos leídos del endpoint
+	 * @param currentActiveResources Recursos que actualmente están activos
+	 * @return Número de registros que se han actualizado
+	 */
+	private Integer findNonActiveVehicles(ReadResourcesDataDTO[] readedResources,
+			List<Resource> currentActiveResources) {
+		List<String> currentActiveResourcesIds = currentActiveResources.stream().map(Resource::getVehicleId)
+				.collect(Collectors.toList());
+		List<String> readedResourcesIds = Arrays.asList(readedResources).stream().map(ReadResourcesDataDTO::getId)
+				.collect(Collectors.toList());
+		// Eliminamos todos los Ids de los recursos activos de la lista de leídos, así
+		// sabremos que IDs de Vehículos son los que tenemos que guardar
+		currentActiveResourcesIds.removeAll(readedResourcesIds);
+		if (!currentActiveResourcesIds.isEmpty()) {
+			// Actualizamos el valor de isLeaving a true del id del vehiculo para indicar
+			// que ya no está activo
+			resourcesService.updateIsLeavingByVehicleIds(currentActiveResourcesIds, Boolean.TRUE);
+			// Devolvemos los registros que hemos desactivado, para tener un control
+			return currentActiveResourcesIds.size();
+		}
+		return 0;
 	}
 
 	/**

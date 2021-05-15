@@ -20,6 +20,11 @@ public class ResourcesService implements IResourcesService {
 	}
 
 	@Override
+	public void updateIsLeavingByVehicleIds(List<String> vehicleIds, Boolean isLeaving) {
+		resourcesRepository.updateIsLeavingByVehicleIds(vehicleIds, isLeaving);
+	}
+
+	@Override
 	public List<Resource> findActiveResources() {
 		return resourcesRepository.findByIsLeaving(Boolean.FALSE);
 	}
