@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS last_readed_vehicles (
+CREATE TABLE IF NOT EXISTS RESOURCE (
     id INT PRIMARY KEY AUTO_INCREMENT,
     vehicle_id VARCHAR(20)
     name VARCHAR(20),
@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS last_readed_vehicles (
     resource_image_id VARCHAR(50),
     real_time_data BOOLEAN,
     resource_type VARCHAR(20),
-    company_zone_id INT
+    company_zone_id INT,
+    leaving_date BIGINT
  );

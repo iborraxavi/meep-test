@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.xiborra.meep_test.exceptions.ReadDataException;
-import com.xiborra.meep_test.model.dto.ReadResourcesDataDTO;
+import com.xiborra.meep_test.model.ReadResourcesDataDTO;
 import com.xiborra.meep_test.properties.EndpointsProperties;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class ReadResourcesDataService {
 				.getForEntity(endpointsProperties.getEndpointReadResourcesData(), ReadResourcesDataDTO[].class);
 		if (responseEntity.getStatusCode().equals(HttpStatus.OK) && responseEntity.getBody() != null
 				&& responseEntity.getBody().length != 0) {
-			showReadedData(responseEntity.getBody());
+//			showReadedData(responseEntity.getBody());
 			return responseEntity.getBody();
 		}
 		throw new ReadDataException("Exception obtaining resources data");

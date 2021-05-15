@@ -1,13 +1,25 @@
-package com.xiborra.meep_test.model.dto;
+package com.xiborra.meep_test.model;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity
+@Table(name = "resource")
 @Getter
 @Setter
-public class ReadResourcesDataDTO {
+public class Resource {
 
-	private String id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+	
+	private String vehicleId;
 	private String name;
 
 	// Geographic coordinate x
@@ -27,4 +39,7 @@ public class ReadResourcesDataDTO {
 	
 	private Integer companyZoneId;
 
+	// Baja del vehiculo.
+	private Boolean isLeaving;
+	
 }
