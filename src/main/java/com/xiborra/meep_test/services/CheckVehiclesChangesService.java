@@ -9,24 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.xiborra.meep_test.exceptions.ReadDataException;
-import com.xiborra.meep_test.model.Resource;
+import com.xiborra.meep_test.model.CheckUpdatesResponse;
 import com.xiborra.meep_test.model.ReadResourcesDataDTO;
-
-import lombok.extern.slf4j.Slf4j;
+import com.xiborra.meep_test.model.Resource;
 
 @Service
-@Slf4j
 public class CheckVehiclesChangesService {
-
-	@Autowired
-	private ReadResourcesDataService readResourcesData;
 
 	@Autowired
 	private ResourcesService resourcesService;
 
-	public void checkUpdates() throws ReadDataException {
-		// Obtenemos los valores de la API
-		ReadResourcesDataDTO[] resources = readResourcesData.read();
+	public CheckUpdatesResponse checkUpdates(ReadResourcesDataDTO[] resources) throws ReadDataException {
 		// Obtenemos la información de los recursos activos para obtener los valores
 		// nuevos y modificar los que ya no estén activos
 		List<Resource> currentActiveResources = resourcesService.findActiveResources();
@@ -34,7 +27,7 @@ public class CheckVehiclesChangesService {
 		Integer savedResources = findNewVehicles(resources, currentActiveResources);
 		// Buscamos y actualizamos los que ya no tengan que estar activos
 		Integer updatedResources = findNonActiveVehicles(resources, currentActiveResources);
-		log.info("XAVI - checkUpdates, saved: {}, updated: {}", savedResources, updatedResources);
+		return new CheckUpdatesResponse(savedResources, updatedResources);
 	}
 
 	/**
