@@ -25,6 +25,11 @@ public class ResourcesService implements IResourcesService {
 	}
 
 	@Override
+	public void deleteByVehicleIds(List<String> vehicleIds) {
+		resourcesRepository.deleteByVehicleIds(vehicleIds);
+	}
+
+	@Override
 	public List<Resource> findActiveResources() {
 		return resourcesRepository.findByIsLeaving(Boolean.FALSE);
 	}

@@ -6,9 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.xiborra.meep_test.dto.CheckUpdatesResponse;
+import com.xiborra.meep_test.dto.ReadResourcesDataDTO;
 import com.xiborra.meep_test.exceptions.ReadDataException;
-import com.xiborra.meep_test.model.CheckUpdatesResponse;
-import com.xiborra.meep_test.model.ReadResourcesDataDTO;
 import com.xiborra.meep_test.properties.EndpointsProperties;
 import com.xiborra.meep_test.services.CheckVehiclesChangesService;
 import com.xiborra.meep_test.services.ReadResourcesDataService;
@@ -28,7 +28,7 @@ public class CheckVehiclesChangesTask {
 	@Autowired
 	private EndpointsProperties endpointsProperties;
 
-	@Scheduled(fixedDelay = 30000)
+	@Scheduled(initialDelay = 15000, fixedDelay = 30000)
 	public void executeTask() {
 		try {
 			Date initDate = new Date();

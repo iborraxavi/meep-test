@@ -8,9 +8,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.xiborra.meep_test.exceptions.ReadDataException;
-import com.xiborra.meep_test.model.CheckUpdatesResponse;
-import com.xiborra.meep_test.model.ReadResourcesDataDTO;
+import com.xiborra.meep_test.dto.CheckUpdatesResponse;
+import com.xiborra.meep_test.dto.ReadResourcesDataDTO;
 import com.xiborra.meep_test.model.Resource;
 
 @Service
@@ -19,7 +18,15 @@ public class CheckVehiclesChangesService {
 	@Autowired
 	private ResourcesService resourcesService;
 
-	public CheckUpdatesResponse checkUpdates(ReadResourcesDataDTO[] resources) throws ReadDataException {
+	/**
+	 * Comprueba si hay cambios en los recursos activos en BBDD respecto a lo que se
+	 * ha leído de la API, si hay recursos nuevos se guardan si hay alguno que no
+	 * viene, se da de baja
+	 * 
+	 * @param resources Recursos leídos de la API
+	 * @return Número de recursos guardados y actualizados
+	 */
+	public CheckUpdatesResponse checkUpdates(ReadResourcesDataDTO[] resources) {
 		// Obtenemos la información de los recursos activos para obtener los valores
 		// nuevos y modificar los que ya no estén activos
 		List<Resource> currentActiveResources = resourcesService.findActiveResources();
@@ -171,7 +178,14 @@ public class CheckVehiclesChangesService {
 		return true;
 	}
 
-	public Resource parseReadDataIntoResourceEntity(ReadResourcesDataDTO readedResource) {
+	/**
+	 * Método para convertir una instancia del objeto que leemos al objeto con el
+	 * que guardamos en BBDD
+	 * 
+	 * @param readedResource Objeto del recurso leído de la API
+	 * @return Recurso generado para guardarlo en BBDD
+	 */
+	private Resource parseReadDataIntoResourceEntity(ReadResourcesDataDTO readedResource) {
 		Resource parsedResource = new Resource();
 		parsedResource.setVehicleId(readedResource.getId());
 		parsedResource.setName(readedResource.getName());

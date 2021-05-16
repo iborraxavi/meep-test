@@ -35,6 +35,12 @@ public class ReadResourceDataServiceTest {
 		org.assertj.core.api.Assertions.assertThatNoException();
 	}
 
+	/**
+	 * Test con petición errónea para comprobar que estén bien controladas las
+	 * exceptions en la validación de la petición
+	 * 
+	 * @throws ReadDataException
+	 */
 	@Test()
 	public void testIncorrectResponseApi() throws ReadDataException {
 		Exception exception = Assertions.assertThrows(ReadDataException.class, () -> {

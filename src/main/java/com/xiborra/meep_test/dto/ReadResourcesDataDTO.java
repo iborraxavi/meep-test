@@ -1,4 +1,4 @@
-package com.xiborra.meep_test.model;
+package com.xiborra.meep_test.dto;
 
 import lombok.Getter;
 import lombok.Setter;

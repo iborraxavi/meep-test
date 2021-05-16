@@ -11,9 +11,11 @@ public interface IResourcesService {
 	public List<Resource> findActiveResources();
 
 	public Resource findLastByVehicleId(String vehicleId);
-
+	
 	public Resource findLastByLicencePlate(String licencePlate);
 
 	public void updateIsLeavingByVehicleIds(List<String> vehicleIds, Boolean isLeaving);
+	
+	public void deleteByVehicleIds(List<String> vehicleIds);
 
 }

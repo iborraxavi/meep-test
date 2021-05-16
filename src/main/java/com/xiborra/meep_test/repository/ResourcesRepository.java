@@ -25,4 +25,9 @@ public interface ResourcesRepository extends CrudRepository<Resource, Long> {
 	public void updateIsLeavingByVehicleIds(@Param(value = "vehicleIds") List<String> vehicleIds,
 			@Param(value = "isLeaving") Boolean isLeaving);
 
+	@Transactional
+	@Modifying
+	@Query("DELETE FROM Resource r WHERE r.vehicleId in :vehicleIds")
+	public void deleteByVehicleIds(@Param(value = "vehicleIds") List<String> vehicleIds);
+
 }

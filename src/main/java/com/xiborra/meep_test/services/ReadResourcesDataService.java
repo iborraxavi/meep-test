@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.xiborra.meep_test.dto.ReadResourcesDataDTO;
 import com.xiborra.meep_test.exceptions.ReadDataException;
-import com.xiborra.meep_test.model.ReadResourcesDataDTO;
 
 @Service
 public class ReadResourcesDataService {
